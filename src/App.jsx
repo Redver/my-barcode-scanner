@@ -29,7 +29,7 @@ function App() {
       <div className="scanner">
         <ReactQRScanner
           delay={300}  // Delay in ms to optimize the scanning
-          facingMode="environment"  // Set the camera to the back camera (environment mode)
+          facingMode="rear"  // Set the camera to the back camera (environment mode)
           onError={handleError}
           onScan={handleScan}
         />
