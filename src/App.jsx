@@ -1,4 +1,5 @@
 import BarcodeScanner from './BarcodeScanner';
+import React from 'react';
 
 function App() {
   return (

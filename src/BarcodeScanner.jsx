@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Html5Qrcode, Html5QrcodeScanType } from "html5-qrcode";
+import React from 'react';
 
 const BarcodeScanner = () => {
   const scannerRef = useRef(null);
