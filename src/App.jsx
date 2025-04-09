@@ -20,7 +20,7 @@ function App() {
 
   // Log facing mode when the component mounts
   React.useEffect(() => {
-    console.log('Initializing QR scanner with back camera (facingMode: environment)');
+    console.log('Initializing QR scanner with back camera (facingMode: rear)');
   }, []);
 
   return (
