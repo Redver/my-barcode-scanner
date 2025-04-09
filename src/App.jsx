@@ -9,6 +9,7 @@ function App() {
   const handleScan = (data) => {
     if (data) {
       setBarcode(data.text);
+      console.log('Scanned Barcode:', data.text);  // Log the scanned barcode
     }
   };
 
@@ -16,6 +17,11 @@ function App() {
   const handleError = (err) => {
     console.error(err);
   };
+
+  // Log facing mode when the component mounts
+  React.useEffect(() => {
+    console.log('Initializing QR scanner with back camera (facingMode: environment)');
+  }, []);
 
   return (
     <div className="App">
