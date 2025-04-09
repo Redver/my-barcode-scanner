@@ -20,7 +20,7 @@ function App() {
 
   // Log facing mode when the component mounts
   React.useEffect(() => {
-    console.log('Initializing QR scanner with back camera (facingMode: rear)');
+    console.log('Initializing QR scanner with back camera contraints (facingMode: rear)');
   }, []);
 
   return (
@@ -29,7 +29,9 @@ function App() {
       <div className="scanner">
         <ReactQRScanner
           delay={300}  // Delay in ms to optimize the scanning
-          facingMode="rear"  // Set the camera to the back camera (environment mode)
+          constraints={{
+            facingMode: 'rear'
+        }}
           onError={handleError}
           onScan={handleScan}
         />
