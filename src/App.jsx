@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import './App.css';
-import BarcodeReader from 'react-barcode-reader';
+import ReactQRScanner from 'react-qr-scanner';
 
 function App() {
   const [barcode, setBarcode] = useState('');
 
-  // Handle barcode scanning
+  // Handle scan
   const handleScan = (data) => {
     if (data) {
-      setBarcode(data);
+      setBarcode(data.text);
     }
   };
 
+  // Handle error
   const handleError = (err) => {
     console.error(err);
   };
@@ -20,10 +21,11 @@ function App() {
     <div className="App">
       <h1>Barcode Scanner</h1>
       <div className="scanner">
-        <BarcodeReader
-          onScan={handleScan}
-          onError={handleError}
+        <ReactQRScanner
+          delay={300}
           facingMode="environment"
+          onError={handleError}
+          onScan={handleScan}
         />
       </div>
       <div className="result">

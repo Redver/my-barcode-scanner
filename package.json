@@ -3,17 +3,18 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-"scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview",
-  "deploy": "npm run build && gh-pages -d dist"
-},
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && gh-pages -d dist"
+  },
   "dependencies": {
+    "@babel/runtime": "^7.27.0",
     "html5-qrcode": "^2.3.8",
     "react": "^19.0.0",
-    "react-barcode-reader": "^0.0.2",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-qr-scanner": "^1.0.0-alpha.11"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
