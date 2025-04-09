@@ -1,0 +1,18 @@
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  color: #333;
+}
+
+.scanner {
+  margin: 20px;
+}
+
+.result {
+  margin-top: 20px;
+  font-size: 18px;
+  color: green;
+}
