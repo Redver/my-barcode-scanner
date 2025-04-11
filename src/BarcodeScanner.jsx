@@ -32,7 +32,7 @@ const BarcodeScanner = () => {
                 `https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`,
                 {
                   headers: {
-                    "User-Agent": "MyBarcodeApp/1.0 (your@email.com)"
+                    "User-Agent": "UniProject/1.0 331418@via.dk"
                   }
                 }
               );
