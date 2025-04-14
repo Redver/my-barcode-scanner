@@ -81,18 +81,30 @@ const BarcodeScanner = () => {
       <div id="reader" style={{ width: '320px', margin: '0 auto' }}></div>
 
       {showOverlay && (
-        <div style={{
-          marginTop: '1rem',
-          padding: '1rem',
-          backgroundColor: '#f0f0f0',
-          borderRadius: '8px',
-          boxShadow: '0 0 10px rgba(0,0,0,0.2)',
-          maxWidth: '320px',
-          margin: '1rem auto',
-        }}>
-          <h2>{productName}</h2>
-          {ecoScore && <p>Eco Score: <strong>{ecoScore}</strong></p>}
-        </div>
+  <div
+    style={{
+      marginTop: '1rem',
+      padding: '1rem',
+      borderRadius: '8px',
+      boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+      maxWidth: '320px',
+      margin: '1rem auto',
+      backgroundColor: {
+        A: '#3CB371',
+        B: '#9ACD32',
+        C: '#FFD700',
+        D: '#FFA500',
+        E: '#FF4500',
+      }[ecoScore] || '#ccc',
+      color: {
+        A: 'white',
+        E: 'white',
+      }[ecoScore] || 'black',
+    }}
+  >
+    <h2>{productName}</h2>
+    {ecoScore && <p>Eco Score: <strong>{ecoScore}</strong></p>}
+      </div>
       )}
     </div>
   );
