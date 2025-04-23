@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Html5Qrcode, Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5Qrcode } from 'html5-qrcode';
+import { useNavigate } from 'react-router-dom'; // 🧭 Add this
 
 const BarcodeScanner = () => {
   const scannerRef = useRef(null);
   const [productName, setProductName] = useState('');
   const [ecoScore, setEcoScore] = useState('');
   const [showOverlay, setShowOverlay] = useState(false);
+  const navigate = useNavigate(); // 🧭 Create navigate function
 
   useEffect(() => {
     const scanner = new Html5Qrcode("reader");
@@ -22,11 +24,8 @@ const BarcodeScanner = () => {
             aspectRatio: 1.777,
           },
           async (decodedText) => {
-            // Stop after first successful scan
             await scanner.stop();
-            console.log("Scanned code:", decodedText);
 
-            // Lookup product by barcode
             try {
               const response = await fetch(
                 `https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`,
@@ -57,7 +56,6 @@ const BarcodeScanner = () => {
             }
           },
           (errorMessage) => {
-            // Scanning error (optional to log)
             console.warn("Scan error:", errorMessage);
           }
         );
@@ -80,31 +78,47 @@ const BarcodeScanner = () => {
       <h1>Scan a Barcode</h1>
       <div id="reader" style={{ width: '320px', margin: '0 auto' }}></div>
 
+      <button
+        onClick={() => navigate('/receipt')}
+        style={{
+          marginTop: '1rem',
+          padding: '0.5rem 1rem',
+          fontSize: '1rem',
+          backgroundColor: '#007BFF',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer'
+        }}
+      >
+        Go to Receipt Scanner
+      </button>
+
       {showOverlay && (
-  <div
-    style={{
-      marginTop: '1rem',
-      padding: '1rem',
-      borderRadius: '8px',
-      boxShadow: '0 0 10px rgba(0,0,0,0.2)',
-      maxWidth: '320px',
-      margin: '1rem auto',
-      backgroundColor: {
-        A: '#3CB371',
-        B: '#9ACD32',
-        C: '#FFD700',
-        D: '#FFA500',
-        E: '#FF4500',
-      }[ecoScore] || '#ccc',
-      color: {
-        A: 'white',
-        E: 'white',
-      }[ecoScore] || 'black',
-    }}
-  >
-    <h2>{productName}</h2>
-    {ecoScore && <p>Eco Score: <strong>{ecoScore}</strong></p>}
-      </div>
+        <div
+          style={{
+            marginTop: '1rem',
+            padding: '1rem',
+            borderRadius: '8px',
+            boxShadow: '0 0 10px rgba(0,0,0,0.2)',
+            maxWidth: '320px',
+            margin: '1rem auto',
+            backgroundColor: {
+              A: '#3CB371',
+              B: '#9ACD32',
+              C: '#FFD700',
+              D: '#FFA500',
+              E: '#FF4500',
+            }[ecoScore] || '#ccc',
+            color: {
+              A: 'white',
+              E: 'white',
+            }[ecoScore] || 'black',
+          }}
+        >
+          <h2>{productName}</h2>
+          {ecoScore && <p>Eco Score: <strong>{ecoScore}</strong></p>}
+        </div>
       )}
     </div>
   );
