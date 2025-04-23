@@ -18,7 +18,7 @@ const BarcodeScanner = () => {
           cameraId,
           {
             fps: 10,
-            qrbox: { width: 300, height: 300 },
+            qrbox: { width: 300, height: 100 },
             aspectRatio: 1.777,
           },
           async (decodedText) => {
