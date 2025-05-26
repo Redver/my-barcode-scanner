@@ -7,6 +7,7 @@ const BarcodeScanner = () => {
   const [productName, setProductName] = useState('');
   const [ecoScore, setEcoScore] = useState('');
   const [labels, setLabels] = useState([]);
+  const [suggestion, setSuggestion] = useState('');
   const [showOverlay, setShowOverlay] = useState(false);
   const navigate = useNavigate();
 
@@ -46,6 +47,12 @@ const BarcodeScanner = () => {
                 setEcoScore(score);
                 setLabels(productLabels);
                 setShowOverlay(true);
+                if (score !== 'A') {
+                  setSuggestion('Try this instead: organic chocolate');
+                } else {
+                  setSuggestion('');
+                }
+                
               } else {
                 setProductName('Product not found');
                 setEcoScore('');
@@ -110,6 +117,7 @@ const BarcodeScanner = () => {
                 setEcoScore(score);
                 setLabels(productLabels);
                 setShowOverlay(true);
+
               } else {
                 setProductName('Product not found');
                 setEcoScore('');
@@ -206,6 +214,12 @@ const BarcodeScanner = () => {
               </ul>
             </div>
           )}
+
+{suggestion && (
+  <div style={{ marginTop: '1rem', backgroundColor: '#f0f0f0', padding: '0.5rem', borderRadius: '5px' }}>
+    <strong>{suggestion}</strong>
+  </div>
+)}
 
           {productName === 'Product not found' && (
             <button
