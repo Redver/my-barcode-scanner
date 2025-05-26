@@ -47,10 +47,13 @@ const BarcodeScanner = () => {
                 setEcoScore(score);
                 setLabels(productLabels);
                 setShowOverlay(true);
+                console.log(score)
                 if (score !== 'A') {
                   setSuggestion('Try this instead: organic chocolate');
+                  console.log("case triggered")
                 } else {
                   setSuggestion('');
+                  console.log("case missed")
                 }
                 
               } else {
