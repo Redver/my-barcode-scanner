@@ -7,59 +7,61 @@ const BarcodeScanner = () => {
   const [productName, setProductName] = useState('');
   const [ecoScore, setEcoScore] = useState('');
   const [showOverlay, setShowOverlay] = useState(false);
-  const [cameraId, setCameraId] = useState(null); // Store for restarting
   const navigate = useNavigate();
 
-  const onScanSuccess = async (decodedText) => {
-    if (scannerRef.current) {
-      await scannerRef.current.stop();
-    }
-
-    try {
-      const response = await fetch(
-        `https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`,
-        {
-          headers: {
-            "User-Agent": "UniProject/1.0 331418@via.dk"
-          }
-        }
-      );
-      const data = await response.json();
-      if (data.status === 1) {
-        const name = data.product.product_name || 'Unknown Product';
-        const score = data.product.ecoscore_grade?.toUpperCase() || 'N/A';
-
-        setProductName(name);
-        setEcoScore(score);
-        setShowOverlay(true);
-      } else {
-        setProductName('Product not found');
-        setEcoScore('');
-        setShowOverlay(true);
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
-      setProductName('Error fetching product');
-      setEcoScore('');
-      setShowOverlay(true);
-    }
-  };
-
   const restartScanner = async () => {
-    if (scannerRef.current && cameraId) {
-      await scannerRef.current.start(
-        cameraId,
-        {
-          fps: 10,
-          qrbox: { width: 300, height: 100 },
-          aspectRatio: 1.777,
-        },
-        onScanSuccess,
-        (errorMessage) => {
-          console.warn("Scan error:", errorMessage);
-        }
-      );
+    if (scannerRef.current) {
       setShowOverlay(false);
+      try {
+        const devices = await Html5Qrcode.getCameras();
+        const cameraId = devices.find(device => device.label.toLowerCase().includes('back'))?.id || devices[0].id;
+
+        await scannerRef.current.start(
+          cameraId,
+          {
+            fps: 10,
+            qrbox: { width: 300, height: 100 },
+            aspectRatio: 1.777,
+          },
+          async (decodedText) => {
+            await scannerRef.current.stop();
+
+            try {
+              const response = await fetch(
+                `https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`,
+                {
+                  headers: {
+                    "User-Agent": "UniProject/1.0 331418@via.dk"
+                  }
+                }
+              );
+              const data = await response.json();
+              if (data.status === 1) {
+                const name = data.product.product_name || 'Unknown Product';
+                const score = data.product.ecoscore_grade?.toUpperCase() || 'N/A';
+
+                setProductName(name);
+                setEcoScore(score);
+                setShowOverlay(true);
+              } else {
+                setProductName('Product not found');
+                setEcoScore('');
+                setShowOverlay(true);
+              }
+            } catch (err) {
+              console.error("Fetch error:", err);
+              setProductName('Error fetching product');
+              setEcoScore('');
+              setShowOverlay(true);
+            }
+          },
+          (errorMessage) => {
+            console.warn("Scan error:", errorMessage);
+          }
+        );
+      } catch (err) {
+        console.error("Restart scanner error:", err);
+      }
     }
   };
 
@@ -68,17 +70,47 @@ const BarcodeScanner = () => {
 
     Html5Qrcode.getCameras().then(devices => {
       if (devices && devices.length) {
-        const id = devices.find(device => device.label.toLowerCase().includes('back'))?.id || devices[0].id;
-        setCameraId(id);
+        const cameraId = devices.find(device => device.label.toLowerCase().includes('back'))?.id || devices[0].id;
 
         scanner.start(
-          id,
+          cameraId,
           {
             fps: 10,
             qrbox: { width: 300, height: 100 },
             aspectRatio: 1.777,
           },
-          onScanSuccess,
+          async (decodedText) => {
+            await scanner.stop();
+
+            try {
+              const response = await fetch(
+                `https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`,
+                {
+                  headers: {
+                    "User-Agent": "UniProject/1.0 331418@via.dk"
+                  }
+                }
+              );
+              const data = await response.json();
+              if (data.status === 1) {
+                const name = data.product.product_name || 'Unknown Product';
+                const score = data.product.ecoscore_grade?.toUpperCase() || 'N/A';
+
+                setProductName(name);
+                setEcoScore(score);
+                setShowOverlay(true);
+              } else {
+                setProductName('Product not found');
+                setEcoScore('');
+                setShowOverlay(true);
+              }
+            } catch (err) {
+              console.error("Fetch error:", err);
+              setProductName('Error fetching product');
+              setEcoScore('');
+              setShowOverlay(true);
+            }
+          },
           (errorMessage) => {
             console.warn("Scan error:", errorMessage);
           }
@@ -138,25 +170,44 @@ const BarcodeScanner = () => {
               A: 'white',
               E: 'white',
             }[ecoScore] || 'black',
+            textAlign: 'center'
           }}
         >
           <h2>{productName}</h2>
           {ecoScore && <p>Eco Score: <strong>{ecoScore}</strong></p>}
 
+          {productName === 'Product not found' && (
+            <button
+              onClick={() => navigate('/submit')}
+              style={{
+                marginTop: '1rem',
+                padding: '0.5rem 1rem',
+                fontSize: '1rem',
+                backgroundColor: '#ff6347',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer'
+              }}
+            >
+              Submit Product Info
+            </button>
+          )}
+
           <button
             onClick={restartScanner}
             style={{
-              marginTop: '1rem',
+              marginTop: '0.5rem',
               padding: '0.5rem 1rem',
               fontSize: '1rem',
               backgroundColor: '#28a745',
               color: 'white',
               border: 'none',
               borderRadius: '5px',
-              cursor: 'pointer',
+              cursor: 'pointer'
             }}
           >
-            Scan New Item
+            Scan Again
           </button>
         </div>
       )}
