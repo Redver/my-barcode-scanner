@@ -6,6 +6,7 @@ const BarcodeScanner = () => {
   const scannerRef = useRef(null);
   const [productName, setProductName] = useState('');
   const [ecoScore, setEcoScore] = useState('');
+  const [labels, setLabels] = useState([]);
   const [showOverlay, setShowOverlay] = useState(false);
   const navigate = useNavigate();
 
@@ -39,19 +40,23 @@ const BarcodeScanner = () => {
               if (data.status === 1) {
                 const name = data.product.product_name || 'Unknown Product';
                 const score = data.product.ecoscore_grade?.toUpperCase() || 'N/A';
+                const productLabels = data.product.labels_tags || [];
 
                 setProductName(name);
                 setEcoScore(score);
+                setLabels(productLabels);
                 setShowOverlay(true);
               } else {
                 setProductName('Product not found');
                 setEcoScore('');
+                setLabels([]);
                 setShowOverlay(true);
               }
             } catch (err) {
               console.error("Fetch error:", err);
               setProductName('Error fetching product');
               setEcoScore('');
+              setLabels([]);
               setShowOverlay(true);
             }
           },
@@ -95,19 +100,27 @@ const BarcodeScanner = () => {
               if (data.status === 1) {
                 const name = data.product.product_name || 'Unknown Product';
                 const score = data.product.ecoscore_grade?.toUpperCase() || 'N/A';
+                const rawLabels = data.product.labels || '';
+                const productLabels = rawLabels
+                  .split(',')
+                  .map(label => label.trim())
+                  .filter(label => label.length > 0);
 
                 setProductName(name);
                 setEcoScore(score);
+                setLabels(productLabels);
                 setShowOverlay(true);
               } else {
                 setProductName('Product not found');
                 setEcoScore('');
+                setLabels([]);
                 setShowOverlay(true);
               }
             } catch (err) {
               console.error("Fetch error:", err);
               setProductName('Error fetching product');
               setEcoScore('');
+              setLabels([]);
               setShowOverlay(true);
             }
           },
@@ -175,6 +188,24 @@ const BarcodeScanner = () => {
         >
           <h2>{productName}</h2>
           {ecoScore && <p>Eco Score: <strong>{ecoScore}</strong></p>}
+
+          {labels.length > 0 && (
+            <div style={{ marginTop: '0.5rem' }}>
+              <p>Labels:</p>
+              <ul style={{ listStyle: 'none', padding: 0 }}>
+                {labels.map((label, idx) => (
+                  <li key={idx} style={{
+                    backgroundColor: '#eee',
+                    margin: '0.2rem 0',
+                    padding: '0.3rem',
+                    borderRadius: '4px'
+                  }}>
+                    {label.replace(/-/g, ' ')}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {productName === 'Product not found' && (
             <button
