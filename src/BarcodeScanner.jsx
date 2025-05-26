@@ -9,7 +9,94 @@ const BarcodeScanner = () => {
   const [labels, setLabels] = useState([]);
   const [suggestion, setSuggestion] = useState('');
   const [showOverlay, setShowOverlay] = useState(false);
+  const [barcode, setBarcode] = useState('');
+  const [isFavourite, setIsFavourite] = useState(false);
   const navigate = useNavigate();
+
+  const getFavourites = () => {
+    const stored = localStorage.getItem('favourites');
+    return stored ? JSON.parse(stored) : [];
+  };
+
+  const updateFavourites = (newFavourites) => {
+    localStorage.setItem('favourites', JSON.stringify(newFavourites));
+  };
+
+  const toggleFavourite = () => {
+    const currentFavourites = getFavourites();
+    if (isFavourite) {
+      const updated = currentFavourites.filter(p => p.barcode !== barcode);
+      updateFavourites(updated);
+      setIsFavourite(false);
+    } else {
+      const newItem = { barcode, productName, ecoScore };
+      const updated = [...currentFavourites, newItem];
+      updateFavourites(updated);
+      setIsFavourite(true);
+    }
+  };
+
+  const checkIfFavourite = (barcodeToCheck) => {
+    const currentFavourites = getFavourites();
+    return currentFavourites.some(p => p.barcode === barcodeToCheck);
+  };
+
+  const handleDecodedText = async (decodedText) => {
+    if (!scannerRef.current) return;
+
+    await scannerRef.current.stop();
+    setBarcode(decodedText);
+
+    try {
+      const response = await fetch(
+        `https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`,
+        {
+          headers: {
+            "User-Agent": "UniProject/1.0 331418@via.dk"
+          }
+        }
+      );
+      const data = await response.json();
+
+      if (data.status === 1) {
+        const name = data.product.product_name || 'Unknown Product';
+        const score = data.product.ecoscore_grade?.toUpperCase() || 'N/A';
+        const rawLabels = data.product.labels || '';
+        const productLabels = rawLabels
+          .split(',')
+          .map(label => label.trim())
+          .filter(label => label.length > 0);
+
+        setProductName(name);
+        setEcoScore(score);
+        setLabels(productLabels);
+        setIsFavourite(checkIfFavourite(decodedText));
+        setShowOverlay(true);
+
+        if (score !== 'A') {
+          setSuggestion('Try this instead: organic chocolate');
+        } else {
+          setSuggestion('');
+        }
+
+      } else {
+        setProductName('Product not found');
+        setEcoScore('');
+        setLabels([]);
+        setSuggestion('');
+        setIsFavourite(false);
+        setShowOverlay(true);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setProductName('Error fetching product');
+      setEcoScore('');
+      setLabels([]);
+      setSuggestion('');
+      setIsFavourite(false);
+      setShowOverlay(true);
+    }
+  };
 
   const restartScanner = async () => {
     if (scannerRef.current) {
@@ -25,51 +112,7 @@ const BarcodeScanner = () => {
             qrbox: { width: 300, height: 100 },
             aspectRatio: 1.777,
           },
-          async (decodedText) => {
-            await scannerRef.current.stop();
-
-            try {
-              const response = await fetch(
-                `https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`,
-                {
-                  headers: {
-                    "User-Agent": "UniProject/1.0 331418@via.dk"
-                  }
-                }
-              );
-              const data = await response.json();
-              if (data.status === 1) {
-                const name = data.product.product_name || 'Unknown Product';
-                const score = data.product.ecoscore_grade?.toUpperCase() || 'N/A';
-                const productLabels = data.product.labels_tags || [];
-
-                setProductName(name);
-                setEcoScore(score);
-                setLabels(productLabels);
-                setShowOverlay(true);
-                console.log(score)
-                if (score !== 'A') {
-                  setSuggestion('Try this instead: organic chocolate');
-                  console.log("case triggered")
-                } else {
-                  setSuggestion('');
-                  console.log("case missed")
-                }
-                
-              } else {
-                setProductName('Product not found');
-                setEcoScore('');
-                setLabels([]);
-                setShowOverlay(true);
-              }
-            } catch (err) {
-              console.error("Fetch error:", err);
-              setProductName('Error fetching product');
-              setEcoScore('');
-              setLabels([]);
-              setShowOverlay(true);
-            }
-          },
+          handleDecodedText,
           (errorMessage) => {
             console.warn("Scan error:", errorMessage);
           }
@@ -94,47 +137,7 @@ const BarcodeScanner = () => {
             qrbox: { width: 300, height: 100 },
             aspectRatio: 1.777,
           },
-          async (decodedText) => {
-            await scanner.stop();
-
-            try {
-              const response = await fetch(
-                `https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`,
-                {
-                  headers: {
-                    "User-Agent": "UniProject/1.0 331418@via.dk"
-                  }
-                }
-              );
-              const data = await response.json();
-              if (data.status === 1) {
-                const name = data.product.product_name || 'Unknown Product';
-                const score = data.product.ecoscore_grade?.toUpperCase() || 'N/A';
-                const rawLabels = data.product.labels || '';
-                const productLabels = rawLabels
-                  .split(',')
-                  .map(label => label.trim())
-                  .filter(label => label.length > 0);
-
-                setProductName(name);
-                setEcoScore(score);
-                setLabels(productLabels);
-                setShowOverlay(true);
-
-              } else {
-                setProductName('Product not found');
-                setEcoScore('');
-                setLabels([]);
-                setShowOverlay(true);
-              }
-            } catch (err) {
-              console.error("Fetch error:", err);
-              setProductName('Error fetching product');
-              setEcoScore('');
-              setLabels([]);
-              setShowOverlay(true);
-            }
-          },
+          handleDecodedText,
           (errorMessage) => {
             console.warn("Scan error:", errorMessage);
           }
@@ -172,6 +175,23 @@ const BarcodeScanner = () => {
         }}
       >
         Go to Receipt Scanner
+      </button>
+
+      <button
+        onClick={() => navigate('/favourites')}
+        style={{
+          marginLeft: '1rem',
+          marginTop: '1rem',
+          padding: '0.5rem 1rem',
+          fontSize: '1rem',
+          backgroundColor: '#6f42c1',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer'
+        }}
+      >
+        Go to Favourites
       </button>
 
       {showOverlay && (
@@ -218,11 +238,11 @@ const BarcodeScanner = () => {
             </div>
           )}
 
-{suggestion && (
-  <div style={{ marginTop: '1rem', backgroundColor: '#f0f0f0', padding: '0.5rem', borderRadius: '5px' }}>
-    <strong>{suggestion}</strong>
-  </div>
-)}
+          {suggestion && (
+            <div style={{ marginTop: '1rem', backgroundColor: '#f0f0f0', padding: '0.5rem', borderRadius: '5px' }}>
+              <strong>{suggestion}</strong>
+            </div>
+          )}
 
           {productName === 'Product not found' && (
             <button
@@ -241,6 +261,22 @@ const BarcodeScanner = () => {
               Submit Product Info
             </button>
           )}
+
+          <button
+            onClick={toggleFavourite}
+            style={{
+              marginTop: '0.5rem',
+              padding: '0.5rem 1rem',
+              fontSize: '1rem',
+              backgroundColor: isFavourite ? '#dc3545' : '#17a2b8',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            {isFavourite ? 'Remove from Favourites' : 'Add to Favourites'}
+          </button>
 
           <button
             onClick={restartScanner}
