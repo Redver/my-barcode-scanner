@@ -1,11 +1,13 @@
 import React, { useRef, useState } from 'react';
 
 const MOCK_PRODUCTS = [
-  { name: 'Organic Milk', ecoScore: 'A' },
-  { name: 'Beef Steak', ecoScore: 'E' },
-  { name: 'Pasta', ecoScore: 'C' },
-  { name: 'Broccoli', ecoScore: 'A' },
-  { name: 'Coca Cola', ecoScore: 'D' },
+  { name: 'Øgo æg 10 M/L', ecoScore: 'D' },
+  { name: 'Spir Øko Havredrik 1L ', ecoScore: 'B' },
+  { name: 'Spir Falafel', ecoScore: 'A' },
+  { name: 'Egelykke 45+ ML SKV.', ecoScore: 'D' },
+  { name: 'Sereno B. Mælk Choko', ecoScore: 'Not Found' },
+  { name: 'Bakersfield Hvede Pi', ecoScore: 'B' },
+  { name: 'Hummus Spicy', ecoScore: 'C' },
 ];
 
 const bgColor = {
@@ -14,6 +16,7 @@ const bgColor = {
   C: '#FFD700',
   D: '#FFA500',
   E: '#FF4500',
+  NotFound : '#FFDDDD',
 };
 
 const textColor = {
