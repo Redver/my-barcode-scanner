@@ -73,8 +73,8 @@ const BarcodeScanner = () => {
         setIsFavourite(checkIfFavourite(decodedText));
         setShowOverlay(true);
 
-        if (score !== 'A') {
-          setSuggestion('Try this instead: organic chocolate');
+        if (score == 'D') {
+          setSuggestion('Try this instead: Kras Them Ekstralagret');
         } else {
           setSuggestion('');
         }
